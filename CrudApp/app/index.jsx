@@ -6,6 +6,7 @@ import {
   StyleSheet,
   FlatList,
 } from "react-native";
+import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useState, useContext,useEffect } from "react";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
@@ -21,6 +22,7 @@ export default function Index() {
   const [todos, setTodos] = useState([]);
   const [text, setText] = useState("");
   const { colorScheme, setColorScheme, theme } = useContext(ThemeContext);
+  const router = useRouter()
   const [loaded, error] = useFonts({
     Inter_500Medium,
   });
@@ -98,14 +100,23 @@ export default function Index() {
     setTodos(todos.filter((todo) => todo.id !== id));
   };
 
+  //using useRouter to handle route change in todos accessing route params
+  const handlePress = (id) => {
+    router.push(`/todos/${id}`)
+  }
+
   const renderItem = ({ item }) => (
     <View style={styles.todoItem}>
+      <Pressable 
+      onPress={()=> handlePress(item.id)}
+      onLongPress={() => toggleTodo(item.id)}>
       <Text
         style={[styles.todoText, item.completed && styles.completedText]}
-        onPress={() => toggleTodo(item.id)}
+        
       >
         {item.title}
       </Text>
+      </Pressable>
       <Pressable onPress={() => removeTodo(item.id)}>
         <MaterialCommunityIcons
           name="delete-circle"
@@ -125,6 +136,7 @@ export default function Index() {
           placeholder="Add a new todo"
           placeholderTextColor="gray"
           value={text}
+          maxLength={30}
           onChangeText={setText}
         />
         <Pressable onPress={addTodo} style={styles.addButton}>
